@@ -170,10 +170,7 @@ function renderToday() {
     body = `
       <div class="card">
         <h3>Warm-up & Abs</h3>
-        <ul class="exercise-list">
-          <li>Dynamic warm-up stretch (full body) — 10 min</li>
-          ${absBlock.map(a => `<li>${a} — 3 sets</li>`).join("")}
-        </ul>
+        ${renderAbsList(absBlock)}
       </div>
       <div class="card">
         <h3>Today's Plan</h3>
@@ -187,10 +184,7 @@ function renderToday() {
     body = `
       <div class="card">
         <h3>Warm-up & Abs</h3>
-        <ul class="exercise-list">
-          <li>Dynamic warm-up stretch (full body) — 10 min</li>
-          ${absBlock.map(a => `<li>${a} — 3 sets</li>`).join("")}
-        </ul>
+        ${renderAbsList(absBlock)}
       </div>
       <div class="card">
         <h3>Choose Today's Muscle Groups</h3>
@@ -218,16 +212,52 @@ function renderToday() {
     </header>
     ${body}
     ${renderMissModal()}
+    ${renderLightbox()}
   `;
+}
+
+function renderLightbox() {
+  return `
+  <div id="lightbox-modal" class="modal hidden">
+    <div class="lightbox-content">
+      <img id="lightbox-img" src="" alt="">
+      <p id="lightbox-caption" class="muted"></p>
+      <button id="lightbox-close" class="btn-secondary">Close</button>
+    </div>
+  </div>`;
+}
+
+function renderThumb(exerciseName) {
+  const url = getExerciseImage(exerciseName);
+  if (!url) return `<div class="ex-thumb ex-thumb-empty">No image</div>`;
+  return `<img class="ex-thumb" src="${url}" alt="${exerciseName}" loading="lazy" data-fullsrc="${url}" data-name="${exerciseName}">`;
+}
+
+function renderAbsList(absBlock) {
+  return `<ul class="exercise-list">
+    <li class="ex-row">
+      ${renderThumb("Dynamic warm-up stretch (full body)")}
+      <div class="ex-text">Dynamic warm-up stretch (full body) — 10 min</div>
+    </li>
+    ${absBlock.map(a => `
+    <li class="ex-row">
+      ${renderThumb(a)}
+      <div class="ex-text">${a} — 3 sets</div>
+    </li>`).join("")}
+  </ul>`;
 }
 
 function renderPlanList(plan) {
   if (!plan || !plan.length) return "<p class=\"muted\">No exercises.</p>";
   return `<ul class="exercise-list">
-    ${plan.map(p => p.duration
-      ? `<li><span class="group-tag">${MUSCLE_GROUPS[p.group]?.label || p.group}</span> ${p.exercise} — ${p.duration}</li>`
-      : `<li><span class="group-tag">${MUSCLE_GROUPS[p.group]?.label || p.group}</span> ${p.exercise} — ${p.sets} sets x ${p.reps} reps (rest ${p.rest})</li>`
-    ).join("")}
+    ${plan.map(p => `
+    <li class="ex-row">
+      ${renderThumb(p.exercise)}
+      <div class="ex-text">
+        <span class="group-tag">${MUSCLE_GROUPS[p.group]?.label || p.group}</span>
+        ${p.exercise} — ${p.duration ? p.duration : `${p.sets} sets x ${p.reps} reps (rest ${p.rest})`}
+      </div>
+    </li>`).join("")}
   </ul>`;
 }
 
@@ -256,6 +286,18 @@ function formatReason(reason) {
 }
 
 function attachTodayHandlers() {
+  document.querySelectorAll(".ex-thumb[data-fullsrc]").forEach(img => {
+    img.addEventListener("click", () => {
+      document.getElementById("lightbox-img").src = img.dataset.fullsrc;
+      document.getElementById("lightbox-caption").textContent = img.dataset.name;
+      document.getElementById("lightbox-modal").classList.remove("hidden");
+    });
+  });
+  const lightboxClose = document.getElementById("lightbox-close");
+  if (lightboxClose) lightboxClose.addEventListener("click", () => {
+    document.getElementById("lightbox-modal").classList.add("hidden");
+  });
+
   document.querySelectorAll(".chip[data-group]").forEach(btn => {
     btn.addEventListener("click", () => {
       const gid = btn.dataset.group;

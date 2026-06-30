@@ -1,5 +1,103 @@
 // Static workout data: exercise pools per muscle group, goal-based rep schemes, fixed warmup/abs.
 
+// Maps our exercise names to the free-exercise-db (public domain) image path.
+// Source: https://github.com/yuhonas/free-exercise-db
+const EXERCISE_IMAGE_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+const EXERCISE_IMAGES = {
+  "Bench press": "Barbell_Bench_Press_-_Medium_Grip/0.jpg",
+  "Incline dumbbell press": "Incline_Dumbbell_Press/0.jpg",
+  "Cable flys": "Flat_Bench_Cable_Flyes/0.jpg",
+  "Dumbbell flat press": "Dumbbell_Bench_Press/0.jpg",
+  "Machine chest press": "Machine_Bench_Press/0.jpg",
+  "Push-ups": "Push-Ups_With_Feet_Elevated/0.jpg",
+  "Decline barbell press": "Decline_Barbell_Bench_Press/0.jpg",
+  "Cable crossover": "Cable_Crossover/0.jpg",
+
+  "Lat pulldown": "Wide-Grip_Lat_Pulldown/0.jpg",
+  "Seated cable row": "Seated_Cable_Rows/0.jpg",
+  "Pull-ups": "Wide-Grip_Rear_Pull-Up/0.jpg",
+  "Bent-over barbell row": "Bent_Over_Barbell_Row/0.jpg",
+  "Single-arm dumbbell row": "One-Arm_Dumbbell_Row/0.jpg",
+  "T-bar row": "T-Bar_Row_with_Handle/0.jpg",
+  "Straight-arm pulldown": "Straight-Arm_Pulldown/0.jpg",
+  "Face pulls": "Face_Pull/0.jpg",
+
+  "Overhead barbell press": "Barbell_Shoulder_Press/0.jpg",
+  "Dumbbell shoulder press": "Dumbbell_Shoulder_Press/0.jpg",
+  "Lateral raises": "Side_Lateral_Raise/0.jpg",
+  "Front raises": "Front_Dumbbell_Raise/0.jpg",
+  "Rear delt flys": "Cable_Rear_Delt_Fly/0.jpg",
+  "Arnold press": "Arnold_Dumbbell_Press/0.jpg",
+  "Cable lateral raise": "Cable_Seated_Lateral_Raise/0.jpg",
+  "Upright row": "Upright_Barbell_Row/0.jpg",
+
+  "Barbell curl": "Barbell_Curl/0.jpg",
+  "Dumbbell curl": "Dumbbell_Bicep_Curl/0.jpg",
+  "Hammer curl": "Hammer_Curls/0.jpg",
+  "Cable curl": "Standing_Biceps_Cable_Curl/0.jpg",
+  "Preacher curl": "Preacher_Curl/0.jpg",
+  "Concentration curl": "Concentration_Curls/0.jpg",
+  "Incline dumbbell curl": "Incline_Dumbbell_Curl/0.jpg",
+  "EZ-bar curl": "EZ-Bar_Curl/0.jpg",
+
+  "Tricep pushdown": "Triceps_Pushdown/0.jpg",
+  "Skull crushers": "EZ-Bar_Skullcrusher/0.jpg",
+  "Overhead dumbbell extension": "Standing_Dumbbell_Triceps_Extension/0.jpg",
+  "Dips": "Dips_-_Triceps_Version/0.jpg",
+  "Close-grip bench press": "Close-Grip_Barbell_Bench_Press/0.jpg",
+  "Rope kickbacks": "Tricep_Dumbbell_Kickback/0.jpg",
+  "Diamond push-ups": "Push-Ups_-_Close_Triceps_Position/0.jpg",
+  "Cable overhead extension": "Cable_Rope_Overhead_Triceps_Extension/0.jpg",
+
+  "Barbell squat": "Barbell_Squat/0.jpg",
+  "Leg press": "Leg_Press/0.jpg",
+  "Romanian deadlift": "Romanian_Deadlift/0.jpg",
+  "Walking lunges": "Barbell_Walking_Lunge/0.jpg",
+  "Leg extension": "Leg_Extensions/0.jpg",
+  "Leg curl": "Lying_Leg_Curls/0.jpg",
+  "Bulgarian split squat": "Split_Squat_with_Dumbbells/0.jpg",
+  "Calf raises": "Standing_Calf_Raises/0.jpg",
+  "Hip thrust": "Barbell_Hip_Thrust/0.jpg",
+
+  "Hanging leg raises": "Hanging_Leg_Raise/0.jpg",
+  "Cable crunch": "Cable_Crunch/0.jpg",
+  "Ab wheel rollout": "Ab_Roller/0.jpg",
+  "Decline sit-ups": "Sit-Up/0.jpg",
+  "Weighted Russian twists": "Russian_Twist/0.jpg",
+  "Plank variations": "Plank/0.jpg",
+  "Med ball slams": "Overhead_Slam/0.jpg",
+
+  "Treadmill run/incline walk": "Running_Treadmill/0.jpg",
+  "Stationary bike intervals": "Recumbent_Bike/0.jpg",
+  "Rowing machine": "Rowing_Stationary/0.jpg",
+  "Stair climber": "Stairmaster/0.jpg",
+  "Elliptical steady state": "Elliptical_Trainer/0.jpg",
+
+  "Hamstring stretch (each leg)": "Hamstring_Stretch/0.jpg",
+  "Hip flexor stretch (each side)": "Standing_Hip_Flexors/0.jpg",
+  "Shoulder/chest doorway stretch": "Chest_And_Front_Of_Shoulder_Stretch/0.jpg",
+  "90/90 hip mobility flow": "90_90_Hamstring/0.jpg",
+  "Standing quad stretch (each leg)": "Standing_Elevated_Quad_Stretch/0.jpg",
+
+  "Plank": "Plank/0.jpg",
+  "Bicycle crunches": "Crunches/0.jpg",
+  "Leg raises": "Hanging_Leg_Raise/0.jpg",
+  "Russian twists": "Russian_Twist/0.jpg",
+  "Crunches": "Crunches/0.jpg",
+  "Mountain climbers": "Mountain_Climbers/0.jpg",
+  "Flutter kicks": "Flutter_Kicks/0.jpg",
+  "Hanging knee raises": "Hanging_Leg_Raise/0.jpg",
+  "Cable crunches": "Cable_Crunch/0.jpg",
+  "Sit-ups": "Sit-Up/0.jpg",
+  "Toe touches": "Standing_Toe_Touches/0.jpg",
+  "Reverse crunches": "Reverse_Crunch/0.jpg"
+};
+
+function getExerciseImage(name) {
+  const path = EXERCISE_IMAGES[name];
+  return path ? EXERCISE_IMAGE_BASE + path : null;
+}
+
 const GOAL_LABELS = {
   build_muscle: "Build Muscle",
   lose_weight: "Lose Weight",
